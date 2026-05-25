@@ -1,0 +1,28 @@
+FROM golang:1.25-bookworm
+
+# Docker CLI + Compose plugin
+RUN apt-get update && apt-get install -y ca-certificates curl gnupg && \
+    install -m 0755 -d /etc/apt/keyrings && \
+    curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc && \
+    chmod a+r /etc/apt/keyrings/docker.asc && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian bookworm stable" \
+    > /etc/apt/sources.list.d/docker.list && \
+    apt-get update && apt-get install -y docker-ce-cli docker-compose-plugin && \
+    rm -rf /var/lib/apt/lists/*
+
+# Nixpacks
+RUN curl -sSL https://nixpacks.com/install.sh | bash
+
+# Go module cache lives in a volume for speed
+ENV GOMODCACHE=/go/pkg/mod
+ENV GOCACHE=/tmp/go-cache
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+RUN go build -o /usr/local/bin/stackfly ./cmd/stackfly
+
+ENTRYPOINT ["/app/scripts/dev-entrypoint.sh"]

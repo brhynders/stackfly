@@ -1,0 +1,52 @@
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-lg border border-gray-200 p-5">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium text-gray-500">CPU</span>
+            <span class="text-xs text-gray-400">{{.Stats.CPU.Cores}} cores</span>
+        </div>
+        <div class="text-2xl font-bold text-gray-900">{{printf "%.1f" .Stats.CPU.UsagePercent}}%</div>
+        <div class="mt-2 w-full bg-gray-100 rounded-full h-2">
+            <div class="h-2 rounded-full {{if gt .Stats.CPU.UsagePercent 80.0}}bg-red-500{{else if gt .Stats.CPU.UsagePercent 60.0}}bg-yellow-500{{else}}bg-indigo-500{{end}}"
+                style="width: {{printf "%.0f" .Stats.CPU.UsagePercent}}%"></div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-5">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium text-gray-500">Memory</span>
+            <span class="text-xs text-gray-400">{{.Stats.Memory.TotalMB}} MB</span>
+        </div>
+        <div class="text-2xl font-bold text-gray-900">{{printf "%.1f" .Stats.Memory.Percent}}%</div>
+        <div class="text-xs text-gray-400 mt-1">{{.Stats.Memory.UsedMB}} / {{.Stats.Memory.TotalMB}} MB</div>
+        <div class="mt-2 w-full bg-gray-100 rounded-full h-2">
+            <div class="h-2 rounded-full {{if gt .Stats.Memory.Percent 80.0}}bg-red-500{{else if gt .Stats.Memory.Percent 60.0}}bg-yellow-500{{else}}bg-indigo-500{{end}}"
+                style="width: {{printf "%.0f" .Stats.Memory.Percent}}%"></div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-5">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium text-gray-500">Disk</span>
+            <span class="text-xs text-gray-400">{{printf "%.1f" .Stats.Disk.TotalGB}} GB</span>
+        </div>
+        <div class="text-2xl font-bold text-gray-900">{{printf "%.1f" .Stats.Disk.Percent}}%</div>
+        <div class="text-xs text-gray-400 mt-1">{{printf "%.1f" .Stats.Disk.UsedGB}} / {{printf "%.1f" .Stats.Disk.TotalGB}} GB</div>
+        <div class="mt-2 w-full bg-gray-100 rounded-full h-2">
+            <div class="h-2 rounded-full {{if gt .Stats.Disk.Percent 80.0}}bg-red-500{{else if gt .Stats.Disk.Percent 60.0}}bg-yellow-500{{else}}bg-indigo-500{{end}}"
+                style="width: {{printf "%.0f" .Stats.Disk.Percent}}%"></div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-5">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium text-gray-500">Network</span>
+        </div>
+        <div class="text-sm font-semibold text-gray-900">
+            <span class="text-green-600">&darr;</span> {{.Stats.Network.RxRate}}
+        </div>
+        <div class="text-sm font-semibold text-gray-900 mt-1">
+            <span class="text-blue-600">&uarr;</span> {{.Stats.Network.TxRate}}
+        </div>
+        <div class="text-xs text-gray-400 mt-2">{{.Stats.Docker.RunningContainers}} containers, {{.Stats.Docker.TotalImages}} images</div>
+    </div>
+</div>

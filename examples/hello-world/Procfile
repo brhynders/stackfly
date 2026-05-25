@@ -1,0 +1,2 @@
+web: node server.js
+worker: node -e "setInterval(() => console.log('worker tick ' + new Date().toISOString()), 5000)"

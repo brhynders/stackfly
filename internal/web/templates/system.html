@@ -1,0 +1,101 @@
+{{define "content"}}
+<div class="mb-6">
+    <h1 class="text-xl font-semibold text-gray-900">System</h1>
+</div>
+
+<div class="space-y-4 max-w-2xl">
+    <div class="bg-white rounded-lg border border-gray-200 p-5">
+        <h3 class="text-sm font-medium text-gray-900 mb-3">System Info</h3>
+        <dl class="space-y-2 text-sm">
+            <div class="flex justify-between">
+                <dt class="text-gray-500">Data Directory</dt>
+                <dd class="font-mono text-gray-700">{{.GitRemote}}</dd>
+            </div>
+        </dl>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-5">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="text-sm font-medium text-gray-900">StackFly {{.Version}}</h3>
+                <p class="text-xs text-gray-400 mt-0.5">Current version</p>
+            </div>
+            <div hx-get="/system/check-update" hx-trigger="load" hx-swap="innerHTML">
+                <span class="text-xs text-gray-400">Checking...</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-5">
+        <h3 class="text-sm font-medium text-gray-900 mb-3">S3 Backup Storage</h3>
+        <p class="text-xs text-gray-400 mb-3">S3-compatible storage for database backups (AWS S3, Cloudflare R2, Backblaze B2, MinIO, Wasabi).</p>
+        <form hx-post="/system/s3" hx-target="#s3-result" hx-swap="innerHTML" class="space-y-3">
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Endpoint</label>
+                    <input type="text" name="endpoint" value="{{.S3.Endpoint}}" placeholder="s3.amazonaws.com"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Region</label>
+                    <input type="text" name="region" value="{{.S3.Region}}" placeholder="us-east-1"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">Bucket</label>
+                <input type="text" name="bucket" value="{{.S3.Bucket}}" placeholder="my-backups"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Access Key</label>
+                    <input type="text" name="access_key" value="{{.S3.AccessKey}}" placeholder="AKIA..."
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Secret Key</label>
+                    <input type="password" name="secret_key" value="{{.S3.SecretKey}}" placeholder="secret"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">Save</button>
+                <button type="button" hx-post="/system/s3/test" hx-target="#s3-result" hx-swap="innerHTML"
+                    class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50">Test Connection</button>
+            </div>
+        </form>
+        <div id="s3-result"></div>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-5">
+        <h3 class="text-sm font-medium text-gray-900 mb-3">Docker Cleanup</h3>
+        <p class="text-xs text-gray-400 mb-3">Remove unused Docker resources.</p>
+        <div id="cleanup-result"></div>
+        <div class="flex items-center gap-3 mt-3">
+            <button hx-post="/system/docker-prune" hx-target="#cleanup-result" hx-swap="innerHTML"
+                hx-confirm="Prune all unused Docker resources?"
+                class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">
+                Prune Unused
+            </button>
+            <button hx-post="/system/docker-nuke" hx-target="#cleanup-result" hx-swap="innerHTML"
+                hx-confirm="Remove ALL unused images including old app builds?"
+                class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700">
+                Deep Clean
+            </button>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-5">
+        <h3 class="text-sm font-medium text-gray-900 mb-3">Updates</h3>
+        <p class="text-xs text-gray-400 mb-3">Configure your GitHub repo to enable one-click updates of the binary, Caddy, and nixpacks.</p>
+        <div class="mb-3">
+            <label class="block text-xs text-gray-500 mb-1">GitHub Repo</label>
+            <input type="text" name="repo" value="{{.Flash}}" placeholder="your-username/stackfly"
+                class="w-full max-w-sm px-3 py-2 border border-gray-300 rounded-md text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                hx-post="/system/save-repo" hx-trigger="change" hx-swap="none">
+        </div>
+        <div id="update-result"></div>
+    </div>
+</div>
+{{end}}

@@ -1,0 +1,61 @@
+<div class="space-y-6">
+    <div class="bg-white rounded-lg border border-gray-200 p-5">
+        <h3 class="text-sm font-medium text-gray-900 mb-3">Git Remote (Push to Deploy)</h3>
+        <div class="flex items-center gap-2">
+            <code class="flex-1 px-3 py-2 bg-gray-50 rounded-md text-sm text-gray-700 font-mono select-all">
+                git remote add stackfly {{.GitRemote}}
+            </code>
+        </div>
+        <p class="text-xs text-gray-400 mt-2">Push to main or master branch to trigger a deploy via Tailscale SSH.</p>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-5">
+        <h3 class="text-sm font-medium text-gray-900 mb-3">Deploy from Git URL</h3>
+        <form hx-post="/apps/{{.AppName}}/deploy" hx-target="#tab-content" class="flex items-end gap-3">
+            <div class="flex-1">
+                <label class="block text-xs text-gray-500 mb-1">Repository URL</label>
+                <input type="text" name="git_url" placeholder="https://github.com/user/repo.git"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div class="w-32">
+                <label class="block text-xs text-gray-500 mb-1">Branch</label>
+                <input type="text" name="branch" value="main" placeholder="main"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <button type="submit"
+                class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 whitespace-nowrap">
+                Deploy
+            </button>
+        </form>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-5">
+        <h3 class="text-sm font-medium text-gray-900 mb-3">Deploy from Local Repo</h3>
+        <form hx-post="/apps/{{.AppName}}/deploy" hx-target="#tab-content">
+            <p class="text-sm text-gray-500 mb-3">Deploy from the latest push to the local git repo.</p>
+            <button type="submit"
+                class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">
+                Deploy Latest
+            </button>
+        </form>
+    </div>
+
+    {{if .Deployment}}
+    <div class="bg-white rounded-lg border border-gray-200 p-5">
+        <h3 class="text-sm font-medium text-gray-900 mb-3">Latest Deployment</h3>
+        <div class="flex items-center gap-4 text-sm">
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium
+                {{if eq .Deployment.Status "deployed"}}bg-green-50 text-green-700
+                {{else if eq .Deployment.Status "building"}}bg-yellow-50 text-yellow-700
+                {{else if eq .Deployment.Status "failed"}}bg-red-50 text-red-700
+                {{else}}bg-gray-50 text-gray-600{{end}}">
+                {{.Deployment.Status}}
+            </span>
+            {{if .Deployment.CommitSHA}}
+            <span class="text-gray-500 font-mono text-xs">{{truncate .Deployment.CommitSHA 8}}</span>
+            {{end}}
+            <span class="text-gray-400">{{timeago .Deployment.CreatedAt}}</span>
+        </div>
+    </div>
+    {{end}}
+</div>

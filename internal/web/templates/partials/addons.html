@@ -1,0 +1,89 @@
+<div class="space-y-4">
+    <div class="bg-white rounded-lg border border-gray-200 p-5">
+        <h3 class="text-sm font-medium text-gray-900 mb-3">Provision Add-on</h3>
+        <form hx-post="/apps/{{.AppName}}/addons" hx-target="#tab-content" class="flex items-end gap-3">
+            <div class="flex-1">
+                <select name="type" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="">Select add-on...</option>
+                    {{range .AddonTypes}}
+                    <option value="{{.}}">{{addonicon .}} {{.}}</option>
+                    {{end}}
+                </select>
+            </div>
+            <button type="submit"
+                class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">
+                Provision
+            </button>
+        </form>
+    </div>
+
+    {{if .Addons}}
+    <div class="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
+        {{range .Addons}}
+        <div class="px-5 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-lg">{{addonicon .Type}}</span>
+                    <div>
+                        <div class="text-sm font-medium text-gray-900">{{.Type}}</div>
+                        <div class="text-xs text-gray-400 font-mono">{{.Name}}</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">
+                        {{.Status}}
+                    </span>
+                    {{if or (eq .Type "postgres") (eq .Type "mysql") (eq .Type "mongodb")}}
+                    <button onclick="document.getElementById('backup-{{.ID}}').classList.toggle('hidden')"
+                        class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+                        Backups
+                    </button>
+                    {{end}}
+                    <button hx-delete="/apps/{{$.AppName}}/addons/{{.ID}}" hx-target="#tab-content"
+                        hx-confirm="Destroy {{.Type}} add-on? Data will be lost."
+                        class="text-xs text-red-500 hover:text-red-700">
+                        Destroy
+                    </button>
+                </div>
+            </div>
+
+            {{if or (eq .Type "postgres") (eq .Type "mysql") (eq .Type "mongodb")}}
+            <div id="backup-{{.ID}}" class="hidden mt-4 pt-4 border-t border-gray-100">
+                <form hx-post="/apps/{{$.AppName}}/addons/{{.ID}}/backup-config" hx-target="#tab-content"
+                    class="flex flex-wrap items-end gap-3">
+                    <label class="flex items-center gap-2 text-sm">
+                        <input type="checkbox" name="enabled" value="on" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        Enable backups
+                    </label>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">Schedule</label>
+                        <select name="schedule" class="px-2 py-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="6h">Every 6 hours</option>
+                            <option value="12h">Every 12 hours</option>
+                            <option value="daily" selected>Daily</option>
+                            <option value="weekly">Weekly</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">Keep last</label>
+                        <input type="number" name="retention" value="7" min="1" max="100"
+                            class="w-16 px-2 py-1.5 border border-gray-300 rounded-md text-xs text-center focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <button type="submit" class="px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-md hover:bg-indigo-700">Save</button>
+                    <button type="button" hx-post="/apps/{{$.AppName}}/addons/{{.ID}}/backup-now" hx-target="#tab-content"
+                        class="px-3 py-1.5 text-xs text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50">
+                        Backup Now
+                    </button>
+                </form>
+            </div>
+            {{end}}
+        </div>
+        {{end}}
+    </div>
+    {{else}}
+    <div class="bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-400 text-sm">
+        No add-ons provisioned. Add a database or cache to your app.
+    </div>
+    {{end}}
+</div>

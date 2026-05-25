@@ -1,0 +1,10 @@
+{{define "content"}}
+<div class="mb-6">
+    <h1 class="text-xl font-semibold text-gray-900">System Monitor</h1>
+    <p class="text-sm text-gray-500 mt-1">Auto-refreshes every 5 seconds</p>
+</div>
+
+<div hx-get="/monitor/stats" hx-trigger="load, every 5s" hx-swap="innerHTML">
+    <div class="flex items-center justify-center py-12 text-gray-400">Loading...</div>
+</div>
+{{end}}

@@ -1,0 +1,102 @@
+{{define "content"}}
+<div class="mb-6">
+    <div class="flex items-center justify-between mb-1">
+        <div class="flex items-center gap-3">
+            <a href="/" class="text-gray-400 hover:text-gray-600">&larr;</a>
+            <h1 class="text-xl font-semibold text-gray-900">{{.App.Name}}</h1>
+            <span class="inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full
+                {{if eq .App.Status "running"}}bg-green-50 text-green-700
+                {{else if eq .App.Status "building"}}bg-yellow-50 text-yellow-700
+                {{else if eq .App.Status "failed"}}bg-red-50 text-red-700
+                {{else}}bg-gray-50 text-gray-600{{end}}">
+                <span class="w-1.5 h-1.5 rounded-full
+                    {{if eq .App.Status "running"}}bg-green-500
+                    {{else if eq .App.Status "building"}}bg-yellow-500
+                    {{else if eq .App.Status "failed"}}bg-red-500
+                    {{else}}bg-gray-400{{end}}"></span>
+                {{.App.Status}}
+            </span>
+        </div>
+        <div class="flex items-center gap-2">
+            {{if eq .App.Status "running"}}
+            <button hx-post="/apps/{{.App.Name}}/restart" hx-target="#tab-content"
+                class="px-3 py-1.5 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50">
+                Restart
+            </button>
+            <button hx-post="/apps/{{.App.Name}}/stop" hx-target="#tab-content"
+                class="px-3 py-1.5 text-sm text-red-600 border border-red-200 rounded-md hover:bg-red-50">
+                Stop
+            </button>
+            {{end}}
+            <button hx-delete="/apps/{{.App.Name}}" hx-confirm="Delete {{.App.Name}}? This cannot be undone."
+                class="px-3 py-1.5 text-sm text-red-600 border border-red-200 rounded-md hover:bg-red-50">
+                Delete
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="border-b border-gray-200 mb-6">
+    <nav class="flex gap-6 -mb-px" id="tabs">
+        <button hx-get="/apps/{{.AppName}}/overview" hx-target="#tab-content"
+            onclick="setActiveTab(this)"
+            class="tab-btn pb-3 px-1 text-sm font-medium border-b-2 {{if eq .ActiveTab "overview"}}border-indigo-500 text-indigo-600{{else}}border-transparent text-gray-500 hover:text-gray-700{{end}}">
+            Overview
+        </button>
+        <button hx-get="/apps/{{.AppName}}/processes" hx-target="#tab-content"
+            onclick="setActiveTab(this)"
+            class="tab-btn pb-3 px-1 text-sm font-medium border-b-2 {{if eq .ActiveTab "processes"}}border-indigo-500 text-indigo-600{{else}}border-transparent text-gray-500 hover:text-gray-700{{end}}">
+            Processes
+        </button>
+        <button hx-get="/apps/{{.AppName}}/domains" hx-target="#tab-content"
+            onclick="setActiveTab(this)"
+            class="tab-btn pb-3 px-1 text-sm font-medium border-b-2 {{if eq .ActiveTab "domains"}}border-indigo-500 text-indigo-600{{else}}border-transparent text-gray-500 hover:text-gray-700{{end}}">
+            Domains
+        </button>
+        <button hx-get="/apps/{{.AppName}}/env" hx-target="#tab-content"
+            onclick="setActiveTab(this)"
+            class="tab-btn pb-3 px-1 text-sm font-medium border-b-2 {{if eq .ActiveTab "env"}}border-indigo-500 text-indigo-600{{else}}border-transparent text-gray-500 hover:text-gray-700{{end}}">
+            Env Vars
+        </button>
+        <button hx-get="/apps/{{.AppName}}/addons" hx-target="#tab-content"
+            onclick="setActiveTab(this)"
+            class="tab-btn pb-3 px-1 text-sm font-medium border-b-2 {{if eq .ActiveTab "addons"}}border-indigo-500 text-indigo-600{{else}}border-transparent text-gray-500 hover:text-gray-700{{end}}">
+            Add-ons
+        </button>
+        <button hx-get="/apps/{{.AppName}}/deployments" hx-target="#tab-content"
+            onclick="setActiveTab(this)"
+            class="tab-btn pb-3 px-1 text-sm font-medium border-b-2 {{if eq .ActiveTab "deployments"}}border-indigo-500 text-indigo-600{{else}}border-transparent text-gray-500 hover:text-gray-700{{end}}">
+            Deployments
+        </button>
+        <button hx-get="/apps/{{.AppName}}/console" hx-target="#tab-content"
+            onclick="setActiveTab(this)"
+            class="tab-btn pb-3 px-1 text-sm font-medium border-b-2 {{if eq .ActiveTab "console"}}border-indigo-500 text-indigo-600{{else}}border-transparent text-gray-500 hover:text-gray-700{{end}}">
+            Console
+        </button>
+        <button hx-get="/apps/{{.AppName}}/logs" hx-target="#tab-content"
+            onclick="setActiveTab(this)"
+            class="tab-btn pb-3 px-1 text-sm font-medium border-b-2 {{if eq .ActiveTab "logs"}}border-indigo-500 text-indigo-600{{else}}border-transparent text-gray-500 hover:text-gray-700{{end}}">
+            Logs
+        </button>
+    </nav>
+</div>
+
+<div id="tab-content"
+     hx-get="/apps/{{.AppName}}/{{.ActiveTab}}"
+     hx-trigger="load"
+     hx-swap="innerHTML">
+    <div class="flex items-center justify-center py-12 text-gray-400">
+        <svg class="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+        Loading...
+    </div>
+</div>
+
+<script>
+function setActiveTab(el) {
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        b.className = 'tab-btn pb-3 px-1 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700';
+    });
+    el.className = 'tab-btn pb-3 px-1 text-sm font-medium border-b-2 border-indigo-500 text-indigo-600';
+}
+</script>
+{{end}}

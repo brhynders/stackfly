@@ -1,0 +1,43 @@
+{{define "content"}}
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-xl font-semibold text-gray-900">Apps</h1>
+    <a href="/apps/new"
+        class="inline-flex items-center px-3 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">
+        + New App
+    </a>
+</div>
+
+{{if .Apps}}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {{range .Apps}}
+    <a href="/apps/{{.Name}}" class="block bg-white rounded-lg border border-gray-200 p-4 hover:border-indigo-300 hover:shadow-sm transition-all">
+        <div class="flex items-center justify-between mb-2">
+            <h3 class="font-medium text-gray-900">{{.Name}}</h3>
+            <span class="inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full
+                {{if eq .Status "running"}}bg-green-50 text-green-700
+                {{else if eq .Status "building"}}bg-yellow-50 text-yellow-700
+                {{else if eq .Status "failed"}}bg-red-50 text-red-700
+                {{else}}bg-gray-50 text-gray-600{{end}}">
+                <span class="w-1.5 h-1.5 rounded-full
+                    {{if eq .Status "running"}}bg-green-500
+                    {{else if eq .Status "building"}}bg-yellow-500
+                    {{else if eq .Status "failed"}}bg-red-500
+                    {{else}}bg-gray-400{{end}}"></span>
+                {{.Status}}
+            </span>
+        </div>
+        <p class="text-xs text-gray-400">{{timeago .UpdatedAt}}</p>
+    </a>
+    {{end}}
+</div>
+{{else}}
+<div class="text-center py-16 bg-white rounded-lg border border-gray-200">
+    <div class="text-gray-400 text-4xl mb-3">&#x1f680;</div>
+    <h3 class="text-gray-600 font-medium mb-1">No apps yet</h3>
+    <p class="text-gray-400 text-sm mb-4">Create your first app to get started.</p>
+    <a href="/apps/new" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">
+        Create App
+    </a>
+</div>
+{{end}}
+{{end}}

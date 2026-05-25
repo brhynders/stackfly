@@ -1,0 +1,9 @@
+#!/bin/bash
+while read oldrev newrev refname; do
+  branch=$(git rev-parse --symbolic --abbrev-ref "$refname")
+  if [ "$branch" = "main" ] || [ "$branch" = "master" ]; then
+    echo "-----> StackFly: Deploying $branch..."
+    curl -sf -X POST "http://{{.Host}}:{{.Port}}/api/apps/{{.AppName}}/deploy" \
+      || echo "Deploy trigger failed"
+  fi
+done

@@ -1,0 +1,90 @@
+<div class="space-y-4">
+    {{if .BuildActive}}
+    {{if .Deployment}}
+    <div class="bg-white rounded-lg border border-yellow-200 p-5">
+        <div class="flex items-center gap-2 mb-3">
+            <svg class="animate-spin h-4 w-4 text-yellow-500" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+            <h3 class="text-sm font-medium text-yellow-800">Build in Progress</h3>
+        </div>
+        <div id="build-log"
+             hx-ext="sse"
+             sse-connect="/apps/{{.AppName}}/deployments/{{.Deployment.ID}}/log"
+             sse-swap="message"
+             hx-swap="beforeend">
+        </div>
+        <pre class="log bg-gray-900 text-gray-100 rounded-md p-4 mt-2 overflow-x-auto max-h-96 overflow-y-auto" id="log-output"></pre>
+        <script>
+            document.body.addEventListener('sse:message', function(e) {
+                var log = document.getElementById('log-output');
+                if (log && e.detail && e.detail.data) {
+                    log.textContent += e.detail.data + '\n';
+                    log.scrollTop = log.scrollHeight;
+                }
+            });
+            document.body.addEventListener('sse:done', function() {
+                setTimeout(function() { location.reload(); }, 1000);
+            });
+        </script>
+    </div>
+    {{end}}
+    {{end}}
+
+    {{if .Deployments}}
+    <div class="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
+        {{$first := true}}
+        {{range .Deployments}}
+        <div class="flex items-center justify-between px-5 py-3">
+            <div class="flex items-center gap-3">
+                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium
+                    {{if eq .Status "deployed"}}bg-green-50 text-green-700
+                    {{else if eq .Status "building"}}bg-yellow-50 text-yellow-700
+                    {{else if eq .Status "succeeded"}}bg-blue-50 text-blue-700
+                    {{else if eq .Status "failed"}}bg-red-50 text-red-700
+                    {{else}}bg-gray-50 text-gray-600{{end}}">
+                    {{.Status}}
+                </span>
+                {{if .CommitSHA}}
+                <span class="text-xs text-gray-500 font-mono">{{truncate .CommitSHA 8}}</span>
+                {{end}}
+                {{if .ImageTag}}
+                <span class="text-xs text-gray-400 font-mono">{{.ImageTag}}</span>
+                {{end}}
+                {{if .Log}}{{if le (len .Log) 80}}
+                <span class="text-xs text-gray-400 italic">{{.Log}}</span>
+                {{end}}{{end}}
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-gray-400">{{timeago .CreatedAt}}</span>
+                {{if and (ne .Status "building") .Log}}
+                <button onclick="toggleBuildLog('{{.ID}}')"
+                    class="text-xs text-gray-500 hover:text-gray-700 font-medium">
+                    Log
+                </button>
+                {{end}}
+                {{if and (ne .Status "building") (ne .ImageTag "")}}
+                <button hx-post="/apps/{{$.AppName}}/deployments/{{.ID}}/rollback"
+                    hx-target="#tab-content"
+                    hx-confirm="Roll back to this deployment?"
+                    class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+                    Rollback
+                </button>
+                {{end}}
+            </div>
+        </div>
+        <div id="buildlog-{{.ID}}" class="hidden border-t border-gray-100 px-5 py-3 bg-gray-50">
+            <pre class="log bg-gray-900 text-gray-100 rounded-md p-4 overflow-x-auto max-h-64 overflow-y-auto text-xs leading-relaxed">{{.Log}}</pre>
+        </div>
+        {{end}}
+    </div>
+    <script>
+    function toggleBuildLog(id) {
+        var el = document.getElementById('buildlog-' + id);
+        el.classList.toggle('hidden');
+    }
+    </script>
+    {{else}}
+    <div class="bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-400 text-sm">
+        No deployments yet. Push code or click Deploy to create your first deployment.
+    </div>
+    {{end}}
+</div>

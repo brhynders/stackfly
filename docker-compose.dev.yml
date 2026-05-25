@@ -1,0 +1,19 @@
+services:
+  stackfly:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Same path inside and outside container so Docker volume
+      # mounts from StackFly-created containers resolve correctly
+      - /tmp/stackfly-dev:/tmp/stackfly-dev
+      - go-mod-cache:/go/pkg/mod
+      - go-build-cache:/tmp/go-cache
+
+volumes:
+  go-mod-cache:
+  go-build-cache:

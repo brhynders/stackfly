@@ -1,0 +1,41 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - StackFly</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <script src="https://unpkg.com/htmx-ext-sse@2.2.2/sse.js"></script>
+    <style>
+        [hx-swap-oob] { display: contents; }
+        .htmx-indicator { opacity: 0; transition: opacity 200ms ease-in; }
+        .htmx-request .htmx-indicator { opacity: 1; }
+        .htmx-request.htmx-indicator { opacity: 1; }
+        pre.log { font-size: 13px; line-height: 1.5; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="grid grid-cols-3 items-center h-14">
+                <a href="/" class="text-lg font-bold text-indigo-600 tracking-tight">StackFly</a>
+                <div class="flex items-center justify-center gap-6">
+                    <a href="/" class="text-sm text-gray-600 hover:text-gray-900">Apps</a>
+                    <a href="/monitor" class="text-sm text-gray-600 hover:text-gray-900">Monitor</a>
+                    <a href="/system" class="text-sm text-gray-600 hover:text-gray-900">System</a>
+                </div>
+                <div class="flex items-center justify-end gap-2"
+                     hx-get="/system/check-update" hx-trigger="load" hx-swap="innerHTML">
+                    <span class="text-xs text-gray-400">{{.Version}}</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+        {{template "content" .}}
+    </main>
+</body>
+</html>
+{{end}}
