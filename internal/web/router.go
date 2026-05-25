@@ -1,12 +1,15 @@
 package web
 
 import (
+	"io/fs"
 	"net/http"
 )
 
 func (h *Handler) SetupRoutes() http.Handler {
 	mux := http.NewServeMux()
 
+	staticSub, _ := fs.Sub(staticFS, "static")
+	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServerFS(staticSub)))
 	mux.HandleFunc("GET /", h.dashboard)
 	mux.HandleFunc("GET /monitor", h.showMonitor)
 	mux.HandleFunc("GET /monitor/stats", h.monitorStats)

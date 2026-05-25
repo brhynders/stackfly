@@ -89,7 +89,46 @@
     <div class="bg-white rounded-lg border border-gray-200 p-5">
         <h3 class="text-sm font-medium text-gray-900 mb-3">Updates</h3>
         <p class="text-xs text-gray-400 mb-3">One-click update of the binary, Caddy, and nixpacks. StackFly will restart automatically.</p>
+        <button hx-post="/system/update" hx-target="#update-result" hx-swap="innerHTML"
+            hx-confirm="Update all components? StackFly will restart."
+            class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">
+            Update Now
+        </button>
         <div id="update-result"></div>
     </div>
 </div>
+
+<div id="update-overlay" class="hidden fixed inset-0 z-[100] bg-gray-900/90 flex items-center justify-center">
+    <div class="w-full max-w-lg mx-4">
+        <div class="flex items-center gap-3 mb-4">
+            <svg class="animate-spin h-5 w-5 text-indigo-400" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+            <span class="text-white font-medium">Updating StackFly...</span>
+        </div>
+        <pre id="update-log" class="bg-gray-950 text-gray-100 rounded-lg p-4 overflow-y-auto font-mono text-xs leading-relaxed" style="height: 300px;"></pre>
+        <p class="text-gray-400 text-xs mt-3">Page will reload when the update completes.</p>
+    </div>
+</div>
+
+<script>
+document.body.addEventListener('htmx:beforeRequest', function(e) {
+    if (e.detail.requestConfig.path === '/system/update') {
+        document.getElementById('update-overlay').classList.remove('hidden');
+    }
+});
+document.body.addEventListener('htmx:afterRequest', function(e) {
+    if (e.detail.requestConfig.path === '/system/update') {
+        var log = document.getElementById('update-log');
+        log.textContent = e.detail.xhr.responseText;
+        log.scrollTop = log.scrollHeight;
+        setTimeout(function() {
+            var check = setInterval(function() {
+                fetch('/').then(function() {
+                    clearInterval(check);
+                    location.reload();
+                }).catch(function() {});
+            }, 2000);
+        }, 3000);
+    }
+});
+</script>
 {{end}}

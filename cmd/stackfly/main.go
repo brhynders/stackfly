@@ -55,7 +55,7 @@ func main() {
 
 	host := *bind
 	if host == "" {
-		host = detectTailscaleIP()
+		host = getTailscaleIP()
 	}
 	cfg.Host = host
 	cfg.Version = version
@@ -154,18 +154,13 @@ func runUpdate() {
 	fmt.Println("All components updated.")
 }
 
-func detectTailscaleIP() string {
-	for _, bin := range []string{"tailscale", "/usr/bin/tailscale", "/usr/sbin/tailscale", "/usr/local/bin/tailscale"} {
-		out, err := exec.Command(bin, "ip", "-4").Output()
-		if err == nil {
-			ip := strings.TrimSpace(string(out))
-			if ip != "" {
-				log.Printf("Detected Tailscale IP: %s", ip)
-				return ip
-			}
-		}
+func getTailscaleIP() string {
+	out, err := exec.Command("tailscale", "ip", "-4").Output()
+	if err != nil {
+		log.Fatalf("Failed to get Tailscale IP: %v\nIs Tailscale running? Try: tailscale up --ssh", err)
 	}
-	log.Println("Tailscale not detected, binding to 0.0.0.0")
-	return "0.0.0.0"
+	ip := strings.TrimSpace(string(out))
+	log.Printf("Binding to Tailscale IP: %s", ip)
+	return ip
 }
 

@@ -4,7 +4,7 @@ set -euo pipefail
 # --- Config ---
 REPO="brhynders/stackfly"
 INSTALL_DIR="/usr/local/bin"
-DATA_DIR="/var/lib/stackfly"
+DATA_DIR="/home/stackfly"
 SERVICE_NAME="stackfly"
 PORT=3000
 
@@ -199,12 +199,21 @@ systemctl enable ufw
 # STACKFLY INSTALLATION
 # ════════════════════════════════════════════════════════════════════════════════
 
+# ── Create stackfly user ──────────────────────────────────────────────────────
+
+if ! id stackfly &>/dev/null; then
+    echo "==> Creating stackfly user..."
+    useradd -m -s /bin/bash -d /home/stackfly stackfly
+fi
+
 # ── Docker ────────────────────────────────────────────────────────────────────
 
 if ! command -v docker &>/dev/null; then
     echo "==> Installing Docker..."
     curl -fsSL https://get.docker.com | sh
 fi
+
+usermod -aG docker stackfly
 
 # ── Nixpacks ──────────────────────────────────────────────────────────────────
 
@@ -233,6 +242,7 @@ fi
 # ── Data directory ────────────────────────────────────────────────────────────
 
 mkdir -p "$DATA_DIR"
+chown -R stackfly:stackfly "$DATA_DIR"
 
 # ── Systemd service ───────────────────────────────────────────────────────────
 
@@ -246,11 +256,13 @@ Wants=tailscaled.service
 
 [Service]
 Type=simple
+User=stackfly
+Group=stackfly
 ExecStartPre=/bin/sleep 2
 ExecStart=${INSTALL_DIR}/stackfly --data-dir ${DATA_DIR} --port ${PORT}
 Restart=always
 RestartSec=5
-Environment=HOME=/root
+Environment=HOME=/home/stackfly
 Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 [Install]

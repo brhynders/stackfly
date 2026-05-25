@@ -1,3 +1,0 @@
-- Tailscale detection, just default to tailscale using tailscale ip -4
-- Better UI for deployment/build logs
-- Spinning loader when updating

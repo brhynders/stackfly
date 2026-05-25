@@ -17,13 +17,15 @@
                 {{.App.Status}}
             </span>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2" id="app-actions">
             {{if eq .App.Status "running"}}
             <button hx-post="/apps/{{.App.Name}}/restart" hx-target="#tab-content"
+                onclick="showActionSpinner('Restarting...')"
                 class="px-3 py-1.5 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50">
                 Restart
             </button>
             <button hx-post="/apps/{{.App.Name}}/stop" hx-target="#tab-content"
+                onclick="showActionSpinner('Stopping...')"
                 class="px-3 py-1.5 text-sm text-red-600 border border-red-200 rounded-md hover:bg-red-50">
                 Stop
             </button>
@@ -91,6 +93,13 @@
     </div>
 </div>
 
+<div id="action-overlay" class="hidden fixed inset-0 z-[100] bg-gray-900/70 flex items-center justify-center">
+    <div class="flex items-center gap-3 bg-white rounded-lg px-6 py-4 shadow-lg">
+        <svg class="animate-spin h-5 w-5 text-indigo-600" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+        <span id="action-label" class="text-sm font-medium text-gray-700">Processing...</span>
+    </div>
+</div>
+
 <script>
 function setActiveTab(el) {
     document.querySelectorAll('.tab-btn').forEach(b => {
@@ -98,5 +107,17 @@ function setActiveTab(el) {
     });
     el.className = 'tab-btn pb-3 px-1 text-sm font-medium border-b-2 border-indigo-500 text-indigo-600';
 }
+
+function showActionSpinner(label) {
+    document.getElementById('action-label').textContent = label;
+    document.getElementById('action-overlay').classList.remove('hidden');
+}
+
+document.body.addEventListener('htmx:afterRequest', function(e) {
+    var overlay = document.getElementById('action-overlay');
+    if (overlay && !overlay.classList.contains('hidden')) {
+        overlay.classList.add('hidden');
+    }
+});
 </script>
 {{end}}

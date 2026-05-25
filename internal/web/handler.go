@@ -32,6 +32,9 @@ import (
 //go:embed templates templates/partials
 var templateFS embed.FS
 
+//go:embed static
+var staticFS embed.FS
+
 type Handler struct {
 	cfg      *config.Config
 	store    *store.Store
@@ -188,7 +191,7 @@ func (h *Handler) gitRemote(r *http.Request, appName string) string {
 	if idx := strings.Index(host, ":"); idx != -1 {
 		host = host[:idx]
 	}
-	return fmt.Sprintf("%s:%s", host, h.git.RepoPath(appName))
+	return fmt.Sprintf("stackfly@%s:repos/%s.git", host, appName)
 }
 
 // --- Dashboard ---
@@ -267,11 +270,9 @@ func (h *Handler) checkUpdate(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, `<span class="inline-flex items-center gap-2 text-xs">
 			<span class="text-gray-400">%s</span>
 			<span class="text-yellow-600 font-medium">&rarr; %s</span>
-			<button hx-post="/system/update" hx-target="#update-result" hx-swap="innerHTML"
-				hx-confirm="Update to %s? StackFly will restart."
-				class="px-2 py-0.5 bg-indigo-600 text-white text-xs font-medium rounded hover:bg-indigo-700">
+			<a href="/system" class="px-2 py-0.5 bg-indigo-600 text-white text-xs font-medium rounded hover:bg-indigo-700">
 				Update
-			</button>
+			</a>
 		</span>`, current, latest, latest)
 	}
 }
