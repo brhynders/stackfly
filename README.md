@@ -70,7 +70,7 @@ ssh user@<tailscale-ip>   # should connect without keys
 SSH into the server via Tailscale, then run:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/brhynders/stackfly/main/scripts/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/brhynders/stackfly/master/scripts/install.sh | sudo bash
 ```
 
 This will:
@@ -159,7 +159,7 @@ StackFly checks for new versions automatically. When an update is available, an 
 Or from the command line:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/brhynders/stackfly/main/scripts/upgrade.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/brhynders/stackfly/master/scripts/upgrade.sh | sudo bash
 ```
 
 ## Data
