@@ -205,8 +205,7 @@ func (d *Deployer) Teardown(ctx context.Context, app *models.App) error {
 	// Remove addon volumes
 	addons, _ := d.store.GetAddons(app.ID)
 	for _, a := range addons {
-		volName := containerName(app.Name, a.Type, 0) + "-data"
-		exec.CommandContext(ctx, "docker", "volume", "rm", "-f", volName).Run()
+		exec.CommandContext(ctx, "docker", "volume", "rm", "-f", a.Name+"-data").Run()
 	}
 
 	d.store.UpdateAppStatus(app.ID, "stopped")
@@ -216,7 +215,8 @@ func (d *Deployer) Teardown(ctx context.Context, app *models.App) error {
 func (d *Deployer) RemoveAddon(ctx context.Context, app *models.App, a *models.Addon) {
 	name := containerName(app.Name, a.Type, 0)
 	exec.CommandContext(ctx, "docker", "rm", "-f", name).Run()
-	exec.CommandContext(ctx, "docker", "volume", "rm", "-f", name+"-data").Run()
+	// Volume name matches addon.Name (not container name)
+	exec.CommandContext(ctx, "docker", "volume", "rm", "-f", a.Name+"-data").Run()
 }
 
 func (d *Deployer) runOneOff(ctx context.Context, appName, imageTag string, env map[string]string, network, command string, logFn func(string)) error {
