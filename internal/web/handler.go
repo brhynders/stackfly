@@ -233,13 +233,8 @@ func (h *Handler) saveRepo(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) checkUpdate(w http.ResponseWriter, r *http.Request) {
-	repo, _ := h.store.GetSetting("github_repo")
+	repo := "brhynders/stackfly"
 	current := h.cfg.Version
-
-	if repo == "" {
-		fmt.Fprintf(w, `<span class="text-xs text-gray-400">Set GitHub repo to check for updates</span>`)
-		return
-	}
 
 	cmd := exec.CommandContext(r.Context(), "curl", "-sf",
 		fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", repo))
@@ -326,11 +321,7 @@ func (h *Handler) testS3Config(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) systemUpdate(w http.ResponseWriter, r *http.Request) {
-	repo, _ := h.store.GetSetting("github_repo")
-	if repo == "" {
-		fmt.Fprintf(w, `<div class="mt-3 p-3 rounded-md bg-red-50 text-red-700 text-sm">Set the GitHub repo first.</div>`)
-		return
-	}
+	repo := "brhynders/stackfly"
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	flusher, _ := w.(http.Flusher)

@@ -268,6 +268,7 @@ func (d *Deployer) runAddon(ctx context.Context, appName string, a *models.Addon
 	image, _ := svc["image"].(string)
 	args := []string{"run", "-d",
 		"--name", name,
+		"--network-alias", a.Name,
 		"--label", "stackfly.app=" + appName,
 		"--label", "stackfly.addon=" + a.Type,
 		"--network", network,
