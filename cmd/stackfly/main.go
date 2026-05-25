@@ -155,13 +155,17 @@ func runUpdate() {
 }
 
 func detectTailscaleIP() string {
-	out, err := exec.Command("tailscale", "ip", "-4").Output()
-	if err != nil {
-		log.Println("Tailscale not detected, binding to 127.0.0.1")
-		return "127.0.0.1"
+	for _, bin := range []string{"tailscale", "/usr/bin/tailscale", "/usr/sbin/tailscale", "/usr/local/bin/tailscale"} {
+		out, err := exec.Command(bin, "ip", "-4").Output()
+		if err == nil {
+			ip := strings.TrimSpace(string(out))
+			if ip != "" {
+				log.Printf("Detected Tailscale IP: %s", ip)
+				return ip
+			}
+		}
 	}
-	ip := strings.TrimSpace(string(out))
-	log.Printf("Detected Tailscale IP: %s", ip)
-	return ip
+	log.Println("Tailscale not detected, binding to 0.0.0.0")
+	return "0.0.0.0"
 }
 

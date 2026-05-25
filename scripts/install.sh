@@ -251,6 +251,7 @@ ExecStart=${INSTALL_DIR}/stackfly --data-dir ${DATA_DIR} --port ${PORT}
 Restart=always
 RestartSec=5
 Environment=HOME=/root
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 [Install]
 WantedBy=multi-user.target
