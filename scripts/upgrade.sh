@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-REPO="your-username/stackfly"
+REPO="brhynders/stackfly"
 INSTALL_DIR="/usr/local/bin"
 
 if [ "$(id -u)" -ne 0 ]; then
